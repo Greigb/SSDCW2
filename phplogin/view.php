@@ -22,6 +22,13 @@ if (isset($_GET['status']) && in_array($_GET['status'], array('open', 'closed', 
     header('Location: view.php?id=' . $_GET['id']);
     exit;
 }
+// Update user
+if (isset($_POST['username'])&& !empty($_POST['username'])) {
+    $stmt = $pdo->prepare('UPDATE tickets SET username = ? WHERE id = ?');
+    $stmt->execute([ $_POST['username'], $_GET['id'] ]);
+    header('Location: view.php?id=' . $_GET['id']);
+    exit;
+}
 // Check if the comment form has been submitted
 if (isset($_POST['msg']) && !empty($_POST['msg'])) {
     // Insert the new comment into the "tickets_comments" table
@@ -39,17 +46,24 @@ $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="content view">
 
-	<h2><?=htmlspecialchars($ticket['title'], ENT_QUOTES)?> <span class="<?=$ticket['status']?>">(<?=$ticket['status']?>)</span></h2>
+    <h2><?=htmlspecialchars($ticket['title'], ENT_QUOTES)?> <span class="<?=$ticket['status']?>">(<?=$ticket['status']?>)</span> 
+    <span class="<?=$ticket['username']?>">(<?=$ticket['username']?>)</span> 
+</h2>
 
     <div class="ticket">
         <p class="created"><?=date('F dS, G:ia', strtotime($ticket['created']))?></p>
         <p class="msg"><?=nl2br(htmlspecialchars($ticket['msg'], ENT_QUOTES))?></p>
     </div>
-
+<div>
+    <form action="" method="post">
+            <textarea name="username" placeholder="Enter new user"></textarea>
+            <input name="username" type="submit" value="Update user">
+        </form>
+</div>
     <div class="btns">
         <a href="view.php?id=<?=$_GET['id']?>&status=closed" class="btn red">Close</a>
         <a href="view.php?id=<?=$_GET['id']?>&status=resolved" class="btn">Resolve</a>
-        <a href="view.php?id=<?=$_GET['id']?>&status=Open" class="btn">Open</a>
+        <a href="view.php?id=<?=$_GET['id']?>&status=open" class="btn">Open</a>
     </div>
 
     <div class="comments">
@@ -73,3 +87,6 @@ $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <?=template_footer()?>
+
+
+
